@@ -17,8 +17,8 @@ def calculate_demographic_data(print_data=True):
     average_age_men = round(average_age_men, 1)
 
     ### What is the percentage of people who have a Bachelor's degree?
-    with_bachelors = df['education'] == 'Bachelors'
-    percentage_bachelors = make_pcnt(with_bachelors.mean())
+    bachelors_mask = df['education'] == 'Bachelors'
+    percentage_bachelors = make_pcnt(bachelors_mask.mean())
 
     ### What percentage of people with advanced education (`Bachelors`, `Masters`, or `Doctorate`) make more than 50K?
 
@@ -27,22 +27,16 @@ def calculate_demographic_data(print_data=True):
     advanced_degree_mask = df['education'].isin(advanced_degrees)
 
     # add a boolean column for whether salary is '>50K'
-    df['over-50k'] = df['salary'] == '>50K'
-
-    # create a dataframe of only those with `Bachelors`, `Masters`, or `Doctorate`
-    higher_education = df[advanced_degree_mask]
+    df['over-50k'] = (df['salary'] == '>50K')
 
     # percentage with advanced degree and salary >50K
-    higher_education_rich = (higher_education['over-50k']).mean()
+    higher_education_rich = (df[advanced_degree_mask]['over-50k']).mean()
     higher_education_rich = make_pcnt(higher_education_rich)
 
     ### What percentage of people without advanced education make more than 50K?
 
-    # create a dataframe of only those WITHOUT `Bachelors`, `Masters`, or `Doctorate`
-    lower_education = df[~advanced_degree_mask]
-
     # percentage without advanced degree and salary >50K
-    lower_education_rich = (lower_education['over-50k']).mean()
+    lower_education_rich = (df[~advanced_degree_mask]['over-50k']).mean()
     lower_education_rich = make_pcnt(lower_education_rich)
 
     ### What is the minimum number of hours a person works per week (hours-per-week feature)?
@@ -50,11 +44,11 @@ def calculate_demographic_data(print_data=True):
 
     ### What percentage of the people who work the minimum number of hours per week have a salary of >50K?
 
-    # create a dataframe of only the people working the minimum number of hours
-    min_workers = df[df['hours-per-week'] == min_work_hours]
+    # create a mask of only the people working the minimum number of hours
+    min_workers_mask = (df['hours-per-week'] == min_work_hours)
 
     # find the percentage of those making >50K
-    rich_percentage = (min_workers['over-50k']).mean()
+    rich_percentage = (df[min_workers_mask]['over-50k']).mean()
     rich_percentage = make_pcnt(rich_percentage)
 
     ### What country has the highest percentage of people that earn >50K?
